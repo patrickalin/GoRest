@@ -18,6 +18,7 @@ type restHTTP struct {
 type RestHTTP interface {
 	GetBody() []byte
 	Get(url string) (err error)
+	GetWithHeaders(url string, headers map[string][]string) (err error)
 	PostJSON(url string, buffer []byte) (err error)
 }
 
@@ -35,12 +36,21 @@ func MakeNew() (rest RestHTTP) {
 	return &restHTTP{}
 }
 
-// Get Rest on the Nest API
-func (r *restHTTP) Get(url string) (err error) {
+// Get Rest with header
+func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err error) {
 
 	mylog.Trace.Println("Rest Get URL:>", url)
 
-	resp, err := http.Get(url)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		return &restError{err, url, "Check your url"}
+	}
+
+	req.Header = headers
+	resp, err := client.Do(req)
+
 	if err != nil {
 		return &restError{err, url, "Check your internet connection or if the site is alive"}
 	}
@@ -83,7 +93,12 @@ func (r *restHTTP) Get(url string) (err error) {
 	return nil
 }
 
-// Post Rest on the Nest API
+// Get Rest without header
+func (r *restHTTP) Get(url string) (err error) {
+	return r.GetWithHeaders(url, nil)
+}
+
+// Post Rest on the API
 func (r *restHTTP) PostJSON(url string, buffer []byte) (err error) {
 
 	mylog.Trace.Println("\n")
