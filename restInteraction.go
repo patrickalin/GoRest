@@ -32,6 +32,7 @@ func (e *restError) Error() string {
 	return fmt.Sprintf("\n \t RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice :> %s", e.message, e.url, e.advice)
 }
 
+// MakeNew create the structure 
 func MakeNew() (rest RestHTTP) {
 	return &restHTTP{}
 }
@@ -70,7 +71,7 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 		return &restError{err, url, "Error the body is null, error in the secret key in the config.json ? "}
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		fmt.Println("\n URL Get :>", url)
 		fmt.Println("Get response Status:>", resp.Status)
 		fmt.Println("Get response Headers:>", resp.Header)
@@ -82,7 +83,7 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 	mylog.Trace.Println("Get response Headers:>", resp.Header)
 	mylog.Trace.Println("Get response Body:>", string(body))
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return &restError{err, url, "Error Status Post"}
 	}
 
