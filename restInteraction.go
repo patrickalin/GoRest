@@ -32,7 +32,7 @@ func (e *restError) Error() string {
 	return fmt.Sprintf("\n \t RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice :> %s", e.message, e.url, e.advice)
 }
 
-// MakeNew create the structure 
+// MakeNew create the structure
 func MakeNew() (rest RestHTTP) {
 	return &restHTTP{}
 }
@@ -78,10 +78,10 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 		fmt.Println("Get response Body:>", string(body))
 	}
 
-	mylog.Trace.Println("\n URL Get :>", url)
-	mylog.Trace.Println("Get response Status:>", resp.Status)
-	mylog.Trace.Println("Get response Headers:>", resp.Header)
-	mylog.Trace.Println("Get response Body:>", string(body))
+	mylog.Trace.Println("URL Get :", url)
+	mylog.Trace.Println("Get response Status:", resp.Status)
+	mylog.Trace.Println("Get response Headers:", resp.Header)
+	mylog.Trace.Println("Get response Body:", string(body))
 
 	if resp.StatusCode != http.StatusOK {
 		return &restError{err, url, "Error Status Post"}
@@ -102,9 +102,8 @@ func (r *restHTTP) Get(url string) (err error) {
 // Post Rest on the API
 func (r *restHTTP) PostJSON(url string, buffer []byte) (err error) {
 
-	mylog.Trace.Println("\n")
-	mylog.Trace.Println("URL Post :>", url)
-	mylog.Trace.Println("Decode Post :> %s \n\n", buffer)
+	mylog.Trace.Printf("URL Post : %s", url)
+	mylog.Trace.Printf("Decode Post : %s", buffer)
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
 	if err != nil {
