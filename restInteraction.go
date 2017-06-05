@@ -1,4 +1,5 @@
-package GoRest
+// Package myRest help to realise some REST calls
+package myRest
 
 import (
 	"bytes"
@@ -22,22 +23,12 @@ type RestHTTP interface {
 	PostJSON(url string, buffer []byte) (err error)
 }
 
-type restError struct {
-	message error
-	url     string
-	advice  string
-}
-
-func (e *restError) Error() string {
-	return fmt.Sprintf("\n \t RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice :> %s", e.message, e.url, e.advice)
-}
-
 // MakeNew create the structure
 func MakeNew() (rest RestHTTP) {
 	return &restHTTP{}
 }
 
-// Get Rest with header
+// GetWithHeaders get with headers
 func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err error) {
 
 	mylog.Trace.Println("Rest Get URL:>", url)
@@ -46,14 +37,14 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
-		return &restError{err, url, "Check your url"}
+		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Check your url", err, url)
 	}
 
 	req.Header = headers
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return &restError{err, url, "Check your internet connection or if the site is alive"}
+		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Check your internet connection or if the site is alive", err, url)
 	}
 
 	defer resp.Body.Close()
@@ -62,13 +53,13 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		return &restError{err, url, "Error with read Body"}
+		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Error with read Body", err, url)
 	}
 
 	mylog.Trace.Printf("Body : \n %s \n\n", body)
 
 	if body == nil {
-		return &restError{err, url, "Error the body is null, error in the secret key in the config.json ? "}
+		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Error the body is null, error in the secret key in the config.json ?", err, url)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -84,7 +75,7 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 	mylog.Trace.Println("Get response Body:", string(body))
 
 	if resp.StatusCode != http.StatusOK {
-		return &restError{err, url, "Error Status Post"}
+		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Error Status Post", err, url)
 	}
 
 	r.status = resp.Status
@@ -95,19 +86,19 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 }
 
 // Get Rest without header
-func (r *restHTTP) Get(url string) (err error) {
+func (r *restHTTP) Get(url string) error {
 	return r.GetWithHeaders(url, nil)
 }
 
 // Post Rest on the API
-func (r *restHTTP) PostJSON(url string, buffer []byte) (err error) {
+func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 
 	mylog.Trace.Printf("URL Post : %s", url)
 	mylog.Trace.Printf("Decode Post : %s", buffer)
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
 	if err != nil {
-		return &restError{err, url, "Check your internet connection or if the site is alive"}
+		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Check your internet connection or if the site is alive", err, url)
 	}
 
 	defer resp.Body.Close()
@@ -116,7 +107,7 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) (err error) {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		return &restError{err, url, "Error with read Body"}
+		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Error with read Body", err, url)
 	}
 
 	if body == nil {
@@ -140,7 +131,7 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) (err error) {
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		fmt.Println("Post response Status:>", resp.Status)
-		return &restError{err, url, "Error Status Post"}
+		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Error Status Post", err, url)
 	}
 
 	r.status = resp.Status
