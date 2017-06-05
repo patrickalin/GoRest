@@ -55,7 +55,7 @@ func Test_restHTTP_Get(t *testing.T) {
 	}{
 	// TODO: Add test cases.
 
-	tt.args.url = "www.google.com"
+	//tt.args.url = "www.google.com"
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
