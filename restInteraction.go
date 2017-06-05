@@ -16,6 +16,7 @@ type restHTTP struct {
 	body   []byte
 }
 
+// RestHTTP interface of the package myRest
 type RestHTTP interface {
 	GetBody() []byte
 	Get(url string) (err error)
