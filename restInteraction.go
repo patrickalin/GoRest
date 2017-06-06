@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	mylog "github.com/patrickalin/GoMyLog"
 )
 
 type restHTTP struct {
@@ -29,10 +27,19 @@ func MakeNew() (rest RestHTTP) {
 	return &restHTTP{}
 }
 
+var debug = false
+
+//DebugOn : display some information
+func DebugOn() {
+	debug = true
+}
+
 // GetWithHeaders get with headers
 func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err error) {
 
-	mylog.Trace.Println("Rest Get URL:>", url)
+	if debug {
+		fmt.Println("Rest Get URL:>", url)
+	}
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -57,23 +64,20 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Error with read Body", err, url)
 	}
 
-	mylog.Trace.Printf("Body : \n %s \n\n", body)
+	if debug {
+		fmt.Printf("Body : \n %s \n\n", body)
+	}
 
 	if body == nil {
 		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Error the body is null, error in the secret key in the config.json ?", err, url)
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK || debug {
 		fmt.Println("\n URL Get :>", url)
 		fmt.Println("Get response Status:>", resp.Status)
 		fmt.Println("Get response Headers:>", resp.Header)
 		fmt.Println("Get response Body:>", string(body))
 	}
-
-	mylog.Trace.Println("URL Get :", url)
-	mylog.Trace.Println("Get response Status:", resp.Status)
-	mylog.Trace.Println("Get response Headers:", resp.Header)
-	mylog.Trace.Println("Get response Body:", string(body))
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("RestError :> %s \n\t Rest URL :> %s \n\t Rest Advice : Error Status Post", err, url)
@@ -94,8 +98,10 @@ func (r *restHTTP) Get(url string) error {
 // Post Rest on the API
 func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 
-	mylog.Trace.Printf("URL Post : %s", url)
-	mylog.Trace.Printf("Decode Post : %s", buffer)
+	if debug {
+		fmt.Printf("URL Post : %s", url)
+		fmt.Printf("Decode Post : %s", buffer)
+	}
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
 	if err != nil {
@@ -112,23 +118,16 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 	}
 
 	if body == nil {
-		fmt.Println("Error the body is null, error in the secret key in the config.json ? ")
-		mylog.Error.Fatal(err)
+		return fmt.Errorf("RestError :> Error the body is null  %s \n\t Rest URL :> %s \n\t Rest Advice : Error with read Body", err, url)
 	}
 
-	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+	if (resp.StatusCode != 200 && resp.StatusCode != 201) || debug {
 		fmt.Println("\n URL Post :>", url)
 		fmt.Printf("Decode Post :> %s \n\n", buffer)
 		fmt.Println("Post response Status:>", resp.Status)
 		fmt.Println("Post response Headers:>", resp.Header)
 		fmt.Println("Post response Body:>", string(body))
 	}
-
-	mylog.Trace.Println("\n URL Post :>", url)
-	mylog.Trace.Printf("Decode Post :> %s \n\n", buffer)
-	mylog.Trace.Println("Post response Status:>", resp.Status)
-	mylog.Trace.Println("Post response Headers:>", resp.Header)
-	mylog.Trace.Println("Post response Body:>", string(body))
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		fmt.Println("Post response Status:>", resp.Status)
