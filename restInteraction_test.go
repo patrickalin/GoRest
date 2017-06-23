@@ -1,70 +1,77 @@
 package myRest
 
 import (
-	"net/http"
-	"reflect"
+	"strings"
 	"testing"
 )
 
 func Test_restHTTP_GetWithHeaders(t *testing.T) {
-	type fields struct {
-		status string
-		header http.Header
-		body   []byte
-	}
+	rest := MakeNew()
 	type args struct {
 		url     string
 		headers map[string][]string
 	}
+	m := make(map[string][]string)
+	b := []string{"value"}
+	m["key"] = b
+
 	tests := []struct {
 		name    string
-		fields  fields
+		fields  RestHTTP
 		args    args
 		wantErr bool
 	}{
-	// TODO: Add test cases.
+		{"good google", rest, args{"http://www.google.com", m}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &restHTTP{
-				status: tt.fields.status,
-				header: tt.fields.header,
-				body:   tt.fields.body,
-			}
-			if err := r.GetWithHeaders(tt.args.url, tt.args.headers); (err != nil) != tt.wantErr {
-				t.Errorf("restHTTP.GetWithHeaders() error = %v, wantErr %v", err, tt.wantErr)
+			if err := rest.Get(tt.args.url); (err != nil) != tt.wantErr {
+				t.Errorf("restHTTP.Get() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
 
-func Test_restHTTP_Get(t *testing.T) {
-	type fields struct {
-		status string
-		header http.Header
-		body   []byte
-	}
+func Test_restHTTP_GetError(t *testing.T) {
+	rest := MakeNew()
 	type args struct {
 		url string
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		fields  RestHTTP
 		args    args
-		wantErr bool
+		wantErr string
 	}{
-	// TODO: Add test cases.
-
-	//tt.args.url = "www.google.com"
+		{"wrong google", rest, args{"http://www.googledsd.comZ"}, "no such host"},
+		{"wrong google", rest, args{"http://www.services.alin.be/"}, "404"},
+		{"wrong google", rest, args{"https://api.bloomsky.com/api/skydata/"}, "401"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &restHTTP{
-				status: tt.fields.status,
-				header: tt.fields.header,
-				body:   tt.fields.body,
+			if err := rest.Get(tt.args.url); !strings.Contains(err.Error(), tt.wantErr) {
+				t.Errorf("restHTTP.Get() error = %v, wantErr %s", err, tt.wantErr)
 			}
-			if err := r.Get(tt.args.url); (err != nil) != tt.wantErr {
+		})
+	}
+}
+
+func Test_restHTTP_Get_GoodCase(t *testing.T) {
+	a := MakeNew()
+	type args struct {
+		url string
+	}
+	tests := []struct {
+		name    string
+		fields  RestHTTP
+		args    args
+		wantErr bool
+	}{
+		{"good google", a, args{"http://www.google.com"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := a.Get(tt.args.url); (err != nil) != tt.wantErr {
 				t.Errorf("restHTTP.Get() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -72,27 +79,49 @@ func Test_restHTTP_Get(t *testing.T) {
 }
 
 func Test_restHTTP_GetBody(t *testing.T) {
-	type fields struct {
-		status string
-		header http.Header
-		body   []byte
+	perdu := MakeNew()
+	perdu.Get("http://www.perdu.com/")
+	empty := MakeNew()
+	type args struct {
+		url string
 	}
 	tests := []struct {
 		name   string
-		fields fields
-		want   []byte
+		fields RestHTTP
+		want   string
 	}{
-	// TODO: Add test cases.
+		{"empty", empty, ""},
+		{"good google", perdu, "<html><head><title>Vous Etes Perdu ?</title></head><body><h1>Perdu sur l'Internet ?</h1><h2>Pas de panique, on va vous aider</h2><strong><pre>    * <----- vous &ecirc;tes ici</pre></strong></body></html>"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &restHTTP{
-				status: tt.fields.status,
-				header: tt.fields.header,
-				body:   tt.fields.body,
-			}
-			if got := r.GetBody(); !reflect.DeepEqual(got, tt.want) {
+			if got := string(tt.fields.GetBody()); strings.TrimSpace(got) != strings.TrimSpace(tt.want) {
 				t.Errorf("restHTTP.GetBody() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_restHTTP_PostJSON(t *testing.T) {
+	a := MakeNew()
+	type args struct {
+		url    string
+		buffer []byte
+	}
+	tests := []struct {
+		name    string
+		fields  RestHTTP
+		args    args
+		wantErr string
+	}{
+		{"wrong google", a, args{"http://www.googledsd.comZ", []byte("foo1")}, "no such host"},
+		{"wrong google", a, args{"http://www.services.alin.be/", []byte("foo2")}, "404"},
+		{"wrong google", a, args{"https://api.bloomsky.com/api/skydata/", []byte("foo3")}, "405"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := a.PostJSON(tt.args.url, tt.args.buffer); !strings.Contains(err.Error(), tt.wantErr) {
+				t.Errorf("restHTTP.PostJSON() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
