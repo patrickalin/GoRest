@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/sirupsen/logrus"
 )
@@ -26,13 +27,26 @@ type RestHTTP interface {
 
 // MakeNew create the structure
 func MakeNew() RestHTTP {
+	log.Formatter = new(logrus.JSONFormatter)
+	log.Formatter = new(logrus.TextFormatter)
+
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		logrus.Info("Failed to log to file, using default stderr")
+		return nil
+	}
+	log.Out = file
 	return &restHTTP{}
 }
+
+const logFile = "callrest.log"
+
+var log = logrus.New()
 
 // GetWithHeaders get with headers
 func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err error) {
 
-	logrus.Infof("Get URL: %s", url)
+	log.Infof("Get URL: %s", url)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -50,7 +64,7 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		logrus.Errorf("Response Headers: %s", resp.Header)
+		log.Errorf("Response Headers: %s", resp.Header)
 		return fmt.Errorf("Response Status: %s", resp.Status)
 	}
 
@@ -60,7 +74,7 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 		return fmt.Errorf("ReadAll %v", err)
 	}
 
-	logrus.Debugf("Body : \n %s", body)
+	log.Debugf("Body : \n %s", body)
 	if body == nil {
 		return fmt.Errorf("Body empty")
 	}
@@ -79,8 +93,8 @@ func (r *restHTTP) Get(url string) error {
 // Post Rest on the API
 func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 
-	logrus.Infof("URL Post : %s", url)
-	logrus.Infof("Decode Post : %s", buffer)
+	log.Infof("URL Post : %s", url)
+	log.Infof("Decode Post : %s", buffer)
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
 	if err != nil {
@@ -95,13 +109,13 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 		return fmt.Errorf("ReadAll %v", err)
 	}
 
-	logrus.Debugf("Body : \n %s", body)
+	log.Debugf("Body : \n %s", body)
 	if body == nil {
 		return fmt.Errorf("Body empty")
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		logrus.Errorf("Post response Headers: %v", resp.Header)
+		log.Errorf("Post response Headers: %v", resp.Header)
 		return fmt.Errorf("Response Status: %s", resp.Status)
 	}
 
