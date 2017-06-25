@@ -1,5 +1,5 @@
-// Package httpgo help to realise some REST calls
-package httpgo
+// Package http help to realise some REST calls
+package http
 
 import (
 	"bytes"

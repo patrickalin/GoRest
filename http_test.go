@@ -1,4 +1,4 @@
-package httpgo
+package http
 
 import (
 	"os"
