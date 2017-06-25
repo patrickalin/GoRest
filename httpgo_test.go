@@ -1,12 +1,21 @@
-package myRest
+package httpgo
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
 
+var rest HTTP
+
+func TestMain(m *testing.M) {
+
+	rest = New(nil)
+	os.Exit(m.Run())
+}
+
 func Test_restHTTP_GetWithHeaders(t *testing.T) {
-	rest := New()
+
 	type args struct {
 		url     string
 		headers map[string][]string
@@ -17,7 +26,7 @@ func Test_restHTTP_GetWithHeaders(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		fields  RestHTTP
+		fields  HTTP
 		args    args
 		wantErr bool
 	}{
@@ -33,13 +42,13 @@ func Test_restHTTP_GetWithHeaders(t *testing.T) {
 }
 
 func Test_restHTTP_GetError(t *testing.T) {
-	rest := New()
+	rest := New(nil)
 	type args struct {
 		url string
 	}
 	tests := []struct {
 		name    string
-		fields  RestHTTP
+		fields  HTTP
 		args    args
 		wantErr string
 	}{
@@ -57,13 +66,13 @@ func Test_restHTTP_GetError(t *testing.T) {
 }
 
 func Test_restHTTP_Get_GoodCase(t *testing.T) {
-	a := New()
+	a := New(nil)
 	type args struct {
 		url string
 	}
 	tests := []struct {
 		name    string
-		fields  RestHTTP
+		fields  HTTP
 		args    args
 		wantErr bool
 	}{
@@ -79,15 +88,15 @@ func Test_restHTTP_Get_GoodCase(t *testing.T) {
 }
 
 func Test_restHTTP_GetBody(t *testing.T) {
-	perdu := New()
+	perdu := New(nil)
 	perdu.Get("http://www.perdu.com/")
-	empty := New()
+	empty := New(nil)
 	type args struct {
 		url string
 	}
 	tests := []struct {
 		name   string
-		fields RestHTTP
+		fields HTTP
 		want   string
 	}{
 		{"empty", empty, ""},
@@ -103,14 +112,14 @@ func Test_restHTTP_GetBody(t *testing.T) {
 }
 
 func Test_restHTTP_PostJSON(t *testing.T) {
-	a := New()
+	a := New(nil)
 	type args struct {
 		url    string
 		buffer []byte
 	}
 	tests := []struct {
 		name    string
-		fields  RestHTTP
+		fields  HTTP
 		args    args
 		wantErr string
 	}{

@@ -1,14 +1,14 @@
-# myRest-go
+# httpgo
 
-[![Build Status](https://travis-ci.org/patrickalin/myRest-go.svg?branch=master)](https://travis-ci.org/patrickalin/myRest-go)
-![Build size](https://reposs.herokuapp.com/?path=patrickalin/myRest-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/patrickalin/myRest-go)](https://goreportcard.com/report/github.com/patrickalin/myRest-go)
-[![Coverage Status](https://coveralls.io/repos/github/patrickalin/myRest-go/badge.svg?branch=master)](https://coveralls.io/github/patrickalin/myRest-go?branch=master)
-[![GoDoc](http://godoc.org/github.com/patrickalin/myRest-go?status.svg)](http://godoc.org/github.com/patrickalin/myRest-go)
+[![Build Status](https://travis-ci.org/patrickalin/httpgo.svg?branch=master)](https://travis-ci.org/patrickalin/httpgo)
+![Build size](https://reposs.herokuapp.com/?path=patrickalin/httpgo)
+[![Go Report Card](https://goreportcard.com/badge/github.com/patrickalin/httpgo)](https://goreportcard.com/report/github.com/patrickalin/httpgo)
+[![Coverage Status](https://coveralls.io/repos/github/patrickalin/httpgo/badge.svg?branch=master)](https://coveralls.io/github/patrickalin/httpgo?branch=master)
+[![GoDoc](http://godoc.org/github.com/patrickalin/httpgo?status.svg)](http://godoc.org/github.com/patrickalin/httpgo)
 
-## Package myRest
+## Package httpgo
 
-The myRest package provides help to realise some call rest.
+The httpgo package provides help to realise some call rest.
 
 ## License
 

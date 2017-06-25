@@ -1,5 +1,5 @@
-// Package myRest help to realise some REST calls
-package myRest
+// Package httpgo help to realise some REST calls
+package httpgo
 
 import (
 	"bytes"
@@ -17,8 +17,8 @@ type restHTTP struct {
 	body   []byte
 }
 
-// RestHTTP interface of the package myRest
-type RestHTTP interface {
+// HTTP interface of the package myRest
+type HTTP interface {
 	GetBody() []byte
 	Get(url string) (err error)
 	GetWithHeaders(url string, headers map[string][]string) (err error)
@@ -30,23 +30,25 @@ const logFile = "callrest.log"
 var log = logrus.New()
 
 // New create the structure
-func New() RestHTTP {
+func New(l *logrus.Logger) HTTP {
+	initLog(l)
+	return &restHTTP{}
+}
+
+func initLog(l *logrus.Logger) {
+	if l != nil {
+		log = l
+		return
+	}
+
+	log = logrus.New()
 	log.Formatter = new(logrus.TextFormatter)
 
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		logrus.Info("Failed to log to file, using default stderr")
-		return nil
 	}
 	log.Out = file
-
-	return &restHTTP{}
-}
-
-// NewWithLogger set the logger
-func NewWithLogger(l *logrus.Logger) RestHTTP {
-	log = l
-	return &restHTTP{}
 }
 
 // GetWithHeaders get with headers
