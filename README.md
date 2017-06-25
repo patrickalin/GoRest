@@ -6,9 +6,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/patrickalin/http-go/badge.svg?branch=master)](https://coveralls.io/github/patrickalin/http-go?branch=master)
 [![GoDoc](http://godoc.org/github.com/patrickalin/http-go?status.svg)](http://godoc.org/github.com/patrickalin/http-go)
 
-## Package http-go
+## Package http
 
-The http-go package provides help to realise some call rest.
+The http package provides help to realise some call rest.
 
 ## License
 
