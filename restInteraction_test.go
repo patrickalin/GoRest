@@ -6,7 +6,7 @@ import (
 )
 
 func Test_restHTTP_GetWithHeaders(t *testing.T) {
-	rest := MakeNew()
+	rest := New()
 	type args struct {
 		url     string
 		headers map[string][]string
@@ -33,7 +33,7 @@ func Test_restHTTP_GetWithHeaders(t *testing.T) {
 }
 
 func Test_restHTTP_GetError(t *testing.T) {
-	rest := MakeNew()
+	rest := New()
 	type args struct {
 		url string
 	}
@@ -57,7 +57,7 @@ func Test_restHTTP_GetError(t *testing.T) {
 }
 
 func Test_restHTTP_Get_GoodCase(t *testing.T) {
-	a := MakeNew()
+	a := New()
 	type args struct {
 		url string
 	}
@@ -79,9 +79,9 @@ func Test_restHTTP_Get_GoodCase(t *testing.T) {
 }
 
 func Test_restHTTP_GetBody(t *testing.T) {
-	perdu := MakeNew()
+	perdu := New()
 	perdu.Get("http://www.perdu.com/")
-	empty := MakeNew()
+	empty := New()
 	type args struct {
 		url string
 	}
@@ -103,7 +103,7 @@ func Test_restHTTP_GetBody(t *testing.T) {
 }
 
 func Test_restHTTP_PostJSON(t *testing.T) {
-	a := MakeNew()
+	a := New()
 	type args struct {
 		url    string
 		buffer []byte

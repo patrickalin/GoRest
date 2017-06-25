@@ -25,9 +25,12 @@ type RestHTTP interface {
 	PostJSON(url string, buffer []byte) (err error)
 }
 
-// MakeNew create the structure
-func MakeNew() RestHTTP {
-	log.Formatter = new(logrus.JSONFormatter)
+const logFile = "callrest.log"
+
+var log = logrus.New()
+
+// New create the structure
+func New() RestHTTP {
 	log.Formatter = new(logrus.TextFormatter)
 
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
@@ -36,17 +39,22 @@ func MakeNew() RestHTTP {
 		return nil
 	}
 	log.Out = file
+
 	return &restHTTP{}
 }
 
-const logFile = "callrest.log"
-
-var log = logrus.New()
+// NewWithLogger set the logger
+func NewWithLogger(l *logrus.Logger) RestHTTP {
+	log = l
+	return &restHTTP{}
+}
 
 // GetWithHeaders get with headers
 func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err error) {
 
-	log.Infof("Get URL: %s", url)
+	log.WithFields(logrus.Fields{
+		"URL": url,
+	}).Info("Get")
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -64,7 +72,10 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Errorf("Response Headers: %s", resp.Header)
+		log.WithFields(logrus.Fields{
+			"status":           resp.Status,
+			"Response Headers": resp.Header,
+		}).Error("Response Status")
 		return fmt.Errorf("Response Status: %s", resp.Status)
 	}
 
@@ -93,8 +104,10 @@ func (r *restHTTP) Get(url string) error {
 // Post Rest on the API
 func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 
-	log.Infof("URL Post : %s", url)
-	log.Infof("Decode Post : %s", buffer)
+	log.WithFields(logrus.Fields{
+		"URL":  url,
+		"Post": buffer,
+	}).Debug("Post")
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
 	if err != nil {
@@ -116,6 +129,11 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		log.Errorf("Post response Headers: %v", resp.Header)
+		log.WithFields(logrus.Fields{
+			"status": resp.Status,
+			"URL":    url,
+			"Post":   buffer,
+		}).Error("Post response Headers")
 		return fmt.Errorf("Response Status: %s", resp.Status)
 	}
 
