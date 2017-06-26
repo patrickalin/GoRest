@@ -35,28 +35,40 @@ func New(l *logrus.Logger) HTTP {
 	return &restHTTP{}
 }
 
+//Init the logger
 func initLog(l *logrus.Logger) {
 	if l != nil {
 		log = l
+		log.WithFields(logrus.Fields{
+			"fct": "http.initLog",
+		}).Debug("Use the logger pass in New")
 		return
 	}
 
 	log = logrus.New()
+	log.WithFields(logrus.Fields{
+		"fct": "http.initLog",
+	}).Debug("Create new logger")
 	log.Formatter = new(logrus.TextFormatter)
 
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		logrus.Info("Failed to log to file, using default stderr")
+		logrus.WithFields(logrus.Fields{
+			"msg": err,
+			"fct": "http.initLog",
+		}).Fatal("Failed to log to file, using default stderr")
 	}
 	log.Out = file
 }
 
 // GetWithHeaders get with headers
-func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err error) {
+func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) error {
 
 	log.WithFields(logrus.Fields{
-		"URL": url,
-	}).Info("Get")
+		"URL":     url,
+		"headers": headers,
+		"fct":     "http.GetWithHeaders",
+	}).Info("Get with header")
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -77,6 +89,7 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 		log.WithFields(logrus.Fields{
 			"status":           resp.Status,
 			"Response Headers": resp.Header,
+			"fct":              "http.GetWithHeaders",
 		}).Error("Response Status")
 		return fmt.Errorf("Response Status: %s", resp.Status)
 	}
@@ -87,7 +100,10 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) (err 
 		return fmt.Errorf("ReadAll %v", err)
 	}
 
-	log.Debugf("Body : \n %s", body)
+	log.WithFields(logrus.Fields{
+		"body": string(body),
+		"fct":  "http.GetWithHeaders",
+	}).Debug("Response")
 	if body == nil {
 		return fmt.Errorf("Body empty")
 	}
@@ -109,6 +125,7 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 	log.WithFields(logrus.Fields{
 		"URL":  url,
 		"Post": buffer,
+		"fct":  "http.PostJSON",
 	}).Debug("Post")
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
@@ -135,6 +152,7 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 			"status": resp.Status,
 			"URL":    url,
 			"Post":   buffer,
+			"fct":    "http.PostJSON",
 		}).Error("Post response Headers")
 		return fmt.Errorf("Response Status: %s", resp.Status)
 	}
