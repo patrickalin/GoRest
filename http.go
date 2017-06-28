@@ -25,13 +25,14 @@ type HTTP interface {
 	PostJSON(url string, buffer []byte) (err error)
 }
 
-const logFile = "callrest.log"
+const logFile = "http.log"
 
 var log = logrus.New()
 
 // New create the structure
 func New(l *logrus.Logger) HTTP {
 	initLog(l)
+	logInfo(funcName(), "New http structure", "")
 	return &restHTTP{}
 }
 
@@ -39,36 +40,23 @@ func New(l *logrus.Logger) HTTP {
 func initLog(l *logrus.Logger) {
 	if l != nil {
 		log = l
-		log.WithFields(logrus.Fields{
-			"fct": "http.initLog",
-		}).Debug("Use the logger pass in New")
+		logDebug(funcName(), "Use the logger pass in New", "")
 		return
 	}
 
 	log = logrus.New()
-	log.WithFields(logrus.Fields{
-		"fct": "http.initLog",
-	}).Debug("Create new logger")
+	logDebug(funcName(), "Create new logger", "")
 	log.Formatter = new(logrus.TextFormatter)
 
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"msg": err,
-			"fct": "http.initLog",
-		}).Fatal("Failed to log to file, using default stderr")
-	}
+	checkErr(err, funcName(), "Failed to log to file, using default stderr", "")
 	log.Out = file
 }
 
 // GetWithHeaders get with headers
 func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) error {
 
-	log.WithFields(logrus.Fields{
-		"URL":     url,
-		"headers": headers,
-		"fct":     "http.GetWithHeaders",
-	}).Info("Get with header")
+	logDebug(funcName(), "Get with header", url)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -86,11 +74,7 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) error
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.WithFields(logrus.Fields{
-			"status":           resp.Status,
-			"Response Headers": resp.Header,
-			"fct":              "http.GetWithHeaders",
-		}).Error("Response Status")
+		logWarn(funcName(), "Response Status", resp.Status)
 		return fmt.Errorf("Response Status: %s", resp.Status)
 	}
 
