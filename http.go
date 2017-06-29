@@ -33,7 +33,7 @@ var log = logrus.New()
 // New create the structure
 func New(l *logrus.Logger) HTTP {
 	initLog(l)
-	logInfo(funcName(), "New http structure", "")
+	logDebug(funcName(), "New http structure", "")
 	return &restHTTP{}
 }
 
