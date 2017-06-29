@@ -120,7 +120,7 @@ func (r *restHTTP) GetBody() []byte {
 	return r.body
 }
 
-/* Fun private ------------------------------------ */
+/* Func private ------------------------------------ */
 
 //Init the logger
 func initLog(l *logrus.Logger) {
