@@ -36,23 +36,6 @@ func New(l *logrus.Logger) HTTP {
 	return &restHTTP{}
 }
 
-//Init the logger
-func initLog(l *logrus.Logger) {
-	if l != nil {
-		log = l
-		logDebug(funcName(), "Use the logger pass in New", "")
-		return
-	}
-
-	log = logrus.New()
-	logDebug(funcName(), "Create new logger", "")
-	log.Formatter = new(logrus.TextFormatter)
-
-	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
-	checkErr(err, funcName(), "Failed to log to file, using default stderr", "")
-	log.Out = file
-}
-
 // GetWithHeaders get with headers
 func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) error {
 
@@ -150,4 +133,23 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 //GetBody return body
 func (r *restHTTP) GetBody() []byte {
 	return r.body
+}
+
+/* Fun private ------------------------------------ */
+
+//Init the logger
+func initLog(l *logrus.Logger) {
+	if l != nil {
+		log = l
+		logDebug(funcName(), "Use the logger pass in New", "")
+		return
+	}
+
+	log = logrus.New()
+	logDebug(funcName(), "Create new logger", "")
+	log.Formatter = new(logrus.TextFormatter)
+
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
+	checkErr(err, funcName(), "Failed to log to file, using default stderr", "")
+	log.Out = file
 }
