@@ -17,7 +17,7 @@ type restHTTP struct {
 	body   []byte
 }
 
-// HTTP interface of the package myRest
+// HTTP interface of the package http
 type HTTP interface {
 	GetBody() []byte
 	Get(url string) (err error)
@@ -25,6 +25,7 @@ type HTTP interface {
 	PostJSON(url string, buffer []byte) (err error)
 }
 
+//constante for the log File
 const logFile = "http.log"
 
 var log = logrus.New()
@@ -57,7 +58,6 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) error
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		logWarn(funcName(), "Response Status", resp.Status)
 		return fmt.Errorf("Response Status: %s", resp.Status)
 	}
 
@@ -66,15 +66,11 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) error
 	if err != nil {
 		return fmt.Errorf("ReadAll %v", err)
 	}
-
-	log.WithFields(logrus.Fields{
-		"body": string(body),
-		"fct":  "http.GetWithHeaders",
-	}).Debug("Response")
 	if body == nil {
 		return fmt.Errorf("Body empty")
 	}
 
+	logDebug(funcName(), "Response", string(body))
 	r.status = resp.Status
 	r.header = resp.Header
 	r.body = body
@@ -89,11 +85,7 @@ func (r *restHTTP) Get(url string) error {
 // Post Rest on the API
 func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 
-	log.WithFields(logrus.Fields{
-		"URL":  url,
-		"Post": buffer,
-		"fct":  "http.PostJSON",
-	}).Debug("Post")
+	logDebug(funcName(), "Post", url)
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
 	if err != nil {
@@ -114,14 +106,7 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		log.Errorf("Post response Headers: %v", resp.Header)
-		log.WithFields(logrus.Fields{
-			"status": resp.Status,
-			"URL":    url,
-			"Post":   buffer,
-			"fct":    "http.PostJSON",
-		}).Error("Post response Headers")
-		return fmt.Errorf("Response Status: %s", resp.Status)
+		return fmt.Errorf("Response Status: %s \nURL : %s \nBuffer %v", resp.Status, url, buffer)
 	}
 
 	r.status = resp.Status
@@ -151,5 +136,6 @@ func initLog(l *logrus.Logger) {
 
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
 	checkErr(err, funcName(), "Failed to log to file, using default stderr", "")
+
 	log.Out = file
 }
