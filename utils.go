@@ -1,7 +1,9 @@
 package http
 
 import (
+	"fmt"
 	"runtime"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -11,30 +13,28 @@ func funcName() string {
 	return runtime.FuncForPC(pc).Name()
 }
 
-func logFatal(err error, fct string, msg string, param string) {
+func logFatal(err error, fct string, msg string, params ...string) {
+	logrus.WithFields(logrus.Fields{
+		"param": fmt.Sprintf(strings.Join(params[:], ",")),
+		"error": err,
+		"fct":   fct,
+	}).Warn(msg)
 	log.WithFields(logrus.Fields{
-		"param": param,
+		"param": fmt.Sprintf(strings.Join(params[:], ",")),
 		"error": err,
 		"fct":   fct,
 	}).Fatal(msg)
 }
 
-func logDebug(fct string, msg string, param string) {
+func logDebug(fct string, msg string, params ...string) {
 	log.WithFields(logrus.Fields{
-		"param": param,
+		"param": fmt.Sprintf(strings.Join(params[:], ",")),
 		"fct":   fct,
 	}).Debug(msg)
 }
 
-func logWarn(fct string, msg string, param string) {
-	log.WithFields(logrus.Fields{
-		"param": param,
-		"fct":   fct,
-	}).Warn(msg)
-}
-
-func checkErr(err error, fct string, msg string, param string) {
+func checkErr(err error, fct string, msg string, params ...string) {
 	if err != nil {
-		logFatal(err, msg, fct, param)
+		logFatal(err, msg, fct, fmt.Sprintf(strings.Join(params[:], ",")))
 	}
 }

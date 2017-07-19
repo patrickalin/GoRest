@@ -53,7 +53,7 @@ func Test_restHTTP_GetError(t *testing.T) {
 		wantErr string
 	}{
 		{"wrong google", rest, args{"http://www.googledsd.comZ"}, "no such host"},
-		{"wrong google", rest, args{"http://www.services.alin.be/"}, "404"},
+		{"wrong google", rest, args{"http://www.dhnet.be/perdu"}, "404"},
 		{"wrong google", rest, args{"https://api.bloomsky.com/api/skydata/"}, "401"},
 	}
 	for _, tt := range tests {
@@ -89,7 +89,8 @@ func Test_restHTTP_Get_GoodCase(t *testing.T) {
 
 func Test_restHTTP_GetBody(t *testing.T) {
 	perdu := New(nil)
-	perdu.Get("http://www.perdu.com/")
+	err := perdu.Get("http://www.perdu.com/")
+	checkErr(err, funcName(), "error with Get")
 	empty := New(nil)
 	type args struct {
 		url string
@@ -124,7 +125,7 @@ func Test_restHTTP_PostJSON(t *testing.T) {
 		wantErr string
 	}{
 		{"wrong google", a, args{"http://www.googledsd.comZ", []byte("foo1")}, "no such host"},
-		{"wrong google", a, args{"http://www.services.alin.be/", []byte("foo2")}, "404"},
+		{"wrong google", a, args{"http://www.dhnet.be/perdu", []byte("foo2")}, "404"},
 		{"wrong google", a, args{"https://api.bloomsky.com/api/skydata/", []byte("foo3")}, "405"},
 	}
 	for _, tt := range tests {
@@ -133,5 +134,11 @@ func Test_restHTTP_PostJSON(t *testing.T) {
 				t.Errorf("restHTTP.PostJSON() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
+	}
+}
+
+func Benchmark_GetGoogle(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		rest.Get("http://www.google.com")
 	}
 }

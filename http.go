@@ -55,7 +55,10 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) error
 		return fmt.Errorf("Execute request %s\n Error : %s \n Advice : Check your internet connection or if the site is alive", url, err)
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		err = resp.Body.Close()
+		checkErr(err, funcName(), "Imposible to close body response", logFile)
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("Response Status: %s", resp.Status)
@@ -92,7 +95,10 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 		return fmt.Errorf("Post %v\n Rest Advice : Check your internet connection or if the site is alive", err)
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		err = resp.Body.Close()
+		checkErr(err, funcName(), "Imposible to close body response", logFile)
+	}()
 
 	//read Body
 	body, err := ioutil.ReadAll(resp.Body)
