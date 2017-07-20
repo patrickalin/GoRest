@@ -43,17 +43,13 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) error
 	logDebug(funcName(), "Get with header", url)
 
 	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return fmt.Errorf("New Request %s\n Error : %v\n Advice : Check your url", url, err)
-	}
+	checkErr(err, funcName(), "New Request error Advice : Check your url", url)
 	req.Header = headers
 
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("Execute request %s\n Error : %s \n Advice : Check your internet connection or if the site is alive", url, err)
-	}
+	checkErr(err, funcName(), "Execute request Error Advice : Check your internet connection or if the site is alive", url)
 
 	defer func() {
 		err = resp.Body.Close()
@@ -66,9 +62,7 @@ func (r *restHTTP) GetWithHeaders(url string, headers map[string][]string) error
 
 	//read Body
 	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("ReadAll %v", err)
-	}
+	checkErr(err, funcName(), "ReadAll", logFile)
 	if body == nil {
 		return fmt.Errorf("Body empty")
 	}
@@ -91,9 +85,7 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 	logDebug(funcName(), "Post", url)
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
-	if err != nil {
-		return fmt.Errorf("Post %v\n Rest Advice : Check your internet connection or if the site is alive", err)
-	}
+	checkErr(err, funcName(), "Post erro Rest Advice : Check your internet connection or if the site is alive")
 
 	defer func() {
 		err = resp.Body.Close()
@@ -102,9 +94,7 @@ func (r *restHTTP) PostJSON(url string, buffer []byte) error {
 
 	//read Body
 	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("ReadAll %v", err)
-	}
+	checkErr(err, funcName(), "ReadAll", logFile)
 
 	log.Debugf("Body : \n %s", body)
 	if body == nil {
