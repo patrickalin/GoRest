@@ -32,7 +32,7 @@ var log = logrus.New()
 
 // New create the structure
 func New(l *logrus.Logger) HTTP {
-	initLog(l)
+	log = initLog(l)
 	logDebug(funcName(), "New http structure", "")
 	return &restHTTP{}
 }
@@ -129,19 +129,19 @@ func (r *restHTTP) GetBody() []byte {
 /* Func private ------------------------------------ */
 
 //Init the logger
-func initLog(l *logrus.Logger) {
+func initLog(l *logrus.Logger) *logrus.Logger {
 	if l != nil {
-		log = l
 		logDebug(funcName(), "Use the logger pass in New", "")
-		return
+		return l
 	}
 
-	log = logrus.New()
+	logn := logrus.New()
 	logDebug(funcName(), "Create new logger", "")
-	log.Formatter = new(logrus.TextFormatter)
+	logn.Formatter = new(logrus.TextFormatter)
 
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY, 0666)
 	checkErr(err, funcName(), "Failed to log to file, using default stderr", "")
 
-	log.Out = file
+	logn.Out = file
+	return logn
 }

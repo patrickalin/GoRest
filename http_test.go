@@ -133,6 +133,13 @@ func Test_restHTTP_PostJSON(t *testing.T) {
 	}
 }
 
+func Test_restHTTP_initLog(t *testing.T) {
+	ll := initLog(nil)
+	New(ll)
+}
+
+/////// Benchmark ///////
+
 func Benchmark_GetGoogle(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		err := rest.Get("http://www.google.com")
