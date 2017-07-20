@@ -42,7 +42,6 @@ func Test_restHTTP_GetWithHeaders(t *testing.T) {
 }
 
 func Test_restHTTP_GetError(t *testing.T) {
-	rest := New(nil)
 	type args struct {
 		url string
 	}
@@ -66,7 +65,6 @@ func Test_restHTTP_GetError(t *testing.T) {
 }
 
 func Test_restHTTP_Get_GoodCase(t *testing.T) {
-	a := New(nil)
 	type args struct {
 		url string
 	}
@@ -76,11 +74,11 @@ func Test_restHTTP_Get_GoodCase(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"good google", a, args{"http://www.google.com"}, false},
+		{"good google", rest, args{"http://www.google.com"}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := a.Get(tt.args.url); (err != nil) != tt.wantErr {
+			if err := rest.Get(tt.args.url); (err != nil) != tt.wantErr {
 				t.Errorf("restHTTP.Get() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -88,8 +86,7 @@ func Test_restHTTP_Get_GoodCase(t *testing.T) {
 }
 
 func Test_restHTTP_GetBody(t *testing.T) {
-	perdu := New(nil)
-	err := perdu.Get("http://www.perdu.com/")
+	err := rest.Get("http://www.perdu.com/")
 	checkErr(err, funcName(), "error with Get")
 	empty := New(nil)
 	type args struct {
@@ -101,7 +98,7 @@ func Test_restHTTP_GetBody(t *testing.T) {
 		want   string
 	}{
 		{"empty", empty, ""},
-		{"good google", perdu, "<html><head><title>Vous Etes Perdu ?</title></head><body><h1>Perdu sur l'Internet ?</h1><h2>Pas de panique, on va vous aider</h2><strong><pre>    * <----- vous &ecirc;tes ici</pre></strong></body></html>"},
+		{"good google", rest, "<html><head><title>Vous Etes Perdu ?</title></head><body><h1>Perdu sur l'Internet ?</h1><h2>Pas de panique, on va vous aider</h2><strong><pre>    * <----- vous &ecirc;tes ici</pre></strong></body></html>"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -113,7 +110,6 @@ func Test_restHTTP_GetBody(t *testing.T) {
 }
 
 func Test_restHTTP_PostJSON(t *testing.T) {
-	a := New(nil)
 	type args struct {
 		url    string
 		buffer []byte
@@ -124,13 +120,13 @@ func Test_restHTTP_PostJSON(t *testing.T) {
 		args    args
 		wantErr string
 	}{
-		{"wrong google", a, args{"http://www.googledsd.comZ", []byte("foo1")}, "no such host"},
-		{"wrong google", a, args{"http://www.dhnet.be/perdu", []byte("foo2")}, "404"},
-		{"wrong google", a, args{"https://api.bloomsky.com/api/skydata/", []byte("foo3")}, "405"},
+		{"wrong google", rest, args{"http://www.googledsd.comZ", []byte("foo1")}, "no such host"},
+		{"wrong google", rest, args{"http://www.dhnet.be/perdu", []byte("foo2")}, "404"},
+		{"wrong google", rest, args{"https://api.bloomsky.com/api/skydata/", []byte("foo3")}, "405"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := a.PostJSON(tt.args.url, tt.args.buffer); !strings.Contains(err.Error(), tt.wantErr) {
+			if err := rest.PostJSON(tt.args.url, tt.args.buffer); !strings.Contains(err.Error(), tt.wantErr) {
 				t.Errorf("restHTTP.PostJSON() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -139,6 +135,7 @@ func Test_restHTTP_PostJSON(t *testing.T) {
 
 func Benchmark_GetGoogle(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		rest.Get("http://www.google.com")
+		err := rest.Get("http://www.google.com")
+		checkErr(err, funcName(), "error Get", "http://www.google.com")
 	}
 }
