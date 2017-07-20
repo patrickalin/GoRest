@@ -85,6 +85,7 @@ clean:
 	@rm -rf prof.cpu
 	@rm -rf *.log
 	@rm -rf torch.svg
+	@rm -rf profile.*
 
 documentation:
 	@echo "listen on http://localhost:8081 ctrl+c stop"

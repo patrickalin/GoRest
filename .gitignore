@@ -2,3 +2,4 @@
 torch.*
 prof.*
 coverage.*
+profile.*
